@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @unique @default(uuid()) @map("id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  fullName String @map("fullname") @db.VarChar(126)
+  userName String @unique @map("username") @db.VarChar(126)
+  email    String @unique @map("email") @db.VarChar(126)
+
+  profileImage   ProfileImage?
+  passwordDetail PasswordDetail?
+  posts          Post[]
+  comments       Comment[]
+  reactions      Reaction[]
+
+  followers Follow[] @relation("followedBy")
+  following Follow[] @relation("following")
+
+  @@index([userName, email])
+  @@map("users")
+}
+
+model ProfileImage {
+  id        String   @unique @default(uuid()) @map("id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("upadate_at")
+
+  imgUrl String @map("img_url") @db.VarChar()
+
+  user   User   @relation(references: [id], fields: [userId])
+  userId String @unique @map("user_id")
+
+  @@map("profile_images")
+}
+
+model PasswordDetail {
+  id        String   @unique @default(uuid()) @map("id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  passwordHash String @unique @map("password_hash") @db.VarChar()
+  refreshToken String @unique @map("refresh_token") @db.VarChar()
+
+  user   User   @relation(references: [id], fields: [userId])
+  userId String @unique @map("user_id")
+
+  @@map("password_details")
+}
+
+model Follow {
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  follower   User   @relation("followedBy", fields: [followerId], references: [id])
+  followerId String @map("follower_id")
+
+  following   User   @relation("following", fields: [followingId], references: [id])
+  followingId String @map("following_id")
+
+  @@id([followerId, followingId])
+  @@map("follows")
+}
+
+model Post {
+  id        String   @unique @default(uuid()) @map("id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  text     String @map("text") @db.Text
+  postType Int    @map("post_type") @db.Integer // 1 --> text, 2 --> text + media
+
+  media     Media?
+  comments  Comment[]
+  reactions Reaction[]
+
+  user   User   @relation(references: [id], fields: [userId])
+  userId String @unique @map("user_id")
+
+  @@map("posts")
+}
+
+model Media {
+  id        String   @unique @default(uuid()) @map("id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  mediaUrl String @map("media_url") @db.VarChar()
+
+  post   Post   @relation(references: [id], fields: [postId])
+  postId String @unique @map("post_id")
+
+  @@map("medias")
+}
+
+model Comment {
+  id        String   @unique @default(uuid()) @map("id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  commentText String @map("comment_text") @db.Text
+
+  post   Post   @relation(references: [id], fields: [postId])
+  postId String @unique @map("post_id")
+
+  user   User   @relation(references: [id], fields: [userId])
+  userId String @unique @map("user_id")
+
+  @@map("comments")
+}
+
+model Reaction {
+  id        String   @unique @default(uuid()) @map("id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  reactionType Int @map("reaction_type") @db.Integer // 1 --> like, -1 --> unlike
+
+  post   Post   @relation(references: [id], fields: [postId])
+  postId String @unique @map("post_id")
+
+  user   User   @relation(references: [id], fields: [userId])
+  userId String @unique @map("user_id")
+
+  @@map("reactions")
+}
