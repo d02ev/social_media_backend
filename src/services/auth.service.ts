@@ -15,18 +15,21 @@ import { AppError, BadRequestError, NotFoundError } from '../errors';
 import { PasswordDetailRepository, UserRepository } from '../repository';
 import { AuthUtil, SupabaseUtil } from '../utils';
 import { JwtPayload } from 'jsonwebtoken';
+import { Helper } from '../helpers';
 
 export class AuthService {
 	private readonly _user_repository: UserRepository;
 	private readonly _password_detail_repository: PasswordDetailRepository;
 	private readonly _auth_util: AuthUtil;
 	private readonly _supabase_util: SupabaseUtil;
+	private readonly _helper: Helper;
 
 	constructor() {
 		this._user_repository = new UserRepository();
 		this._password_detail_repository = new PasswordDetailRepository();
 		this._auth_util = new AuthUtil();
 		this._supabase_util = new SupabaseUtil();
+		this._helper = new Helper();
 	}
 
 	registerUser = async (
@@ -40,9 +43,10 @@ export class AuthService {
 			if (profile_img_attached) {
 				const { profile_img_name, profile_img_buffer, profile_img_mime_type } =
 					registerUserRequestDto;
+				const custom_profile_img_name = this._helper.genCustomFileName(profile_img_name!);
 				const { error } = await this._supabase_util.uploadNewMedia(
 					'profileImage',
-					profile_img_name!,
+					custom_profile_img_name,
 					profile_img_buffer!,
 					profile_img_mime_type!,
 				);

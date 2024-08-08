@@ -28,7 +28,7 @@ export class AuthController {
 				request_body = {
 					...req.body,
 					profile_img_attached: true,
-					profile_img_name: req.file.filename,
+					profile_img_name: req.file.originalname,
 					profile_img_buffer: req.file.buffer,
 					profile_img_mime_type: req.file.mimetype,
 				};
