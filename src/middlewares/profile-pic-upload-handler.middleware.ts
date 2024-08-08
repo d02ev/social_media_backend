@@ -9,7 +9,7 @@ export const profileImageUploadHandler = (
 	res: Response,
 	next: NextFunction,
 ) => {
-	new MediaUploadUtil('profileImage').upload.single('profileImage')(req, res, (err: any) => {
+	new MediaUploadUtil('profileImage').upload.single('profile_image')(req, res, (err: any) => {
 		if (err) {
 			if (err instanceof MulterError) {
 				switch (err.code) {

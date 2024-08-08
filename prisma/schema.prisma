@@ -34,7 +34,8 @@ model ProfileImage {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("upadate_at")
 
-  imgUrl String @map("img_url") @db.VarChar()
+  imgName String? @map("img_name") @db.VarChar()
+  imgUrl  String? @default("Not Attached") @map("img_url") @db.VarChar()
 
   user   User   @relation(references: [id], fields: [userId])
   userId String @unique @map("user_id")
@@ -48,7 +49,7 @@ model PasswordDetail {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   passwordHash String @unique @map("password_hash") @db.VarChar()
-  refreshToken String @unique @map("refresh_token") @db.VarChar()
+  refreshToken String? @unique @map("refresh_token") @db.VarChar()
 
   user   User   @relation(references: [id], fields: [userId])
   userId String @unique @map("user_id")
@@ -93,7 +94,8 @@ model Media {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  mediaUrl String @map("media_url") @db.VarChar()
+  mediaName String? @map("media_name") @db.VarChar()
+  mediaUrl  String? @default("Not Attached") @map("media_url") @db.VarChar()
 
   post   Post   @relation(references: [id], fields: [postId])
   postId String @unique @map("post_id")

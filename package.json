@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/d02ev/social_media_backend#readme",
   "dependencies": {
-    "@prisma/client": "^5.17.0",
+    "@prisma/client": "^5.18.0",
     "@supabase/supabase-js": "^2.44.4",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
@@ -73,7 +73,7 @@
     "eslint-config-prettier": "^9.1.0",
     "nodemon": "^3.1.4",
     "prettier": "^3.3.3",
-    "prisma": "^5.17.0",
+    "prisma": "^5.18.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.5.3",
     "typescript-eslint": "^7.16.1"

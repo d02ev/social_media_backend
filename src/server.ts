@@ -7,6 +7,8 @@ import cookieParser from 'cookie-parser';
 import { ServerConfig } from './configs';
 import passport from 'passport';
 import { errorHandler } from './middlewares';
+import { jwtStrategy, localStrategy } from './strategy';
+import { auth_routes } from './routes';
 
 const app: Application = express();
 
@@ -19,6 +21,11 @@ app.use(cookieParser());
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(passport.initialize());
+
+localStrategy(passport);
+jwtStrategy(passport);
+
+app.use('/api/v1/auth', auth_routes);
 
 app.use(errorHandler);
 

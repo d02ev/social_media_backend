@@ -18,7 +18,11 @@ export class MediaUploadUtil {
 					) => {
 						const allowed_mime_types = ['image/jpg', 'image/png', 'image/jpeg'];
 						if (!allowed_mime_types.includes(file.mimetype)) {
-							cb(new BadRequestError('Invalid file type only JPG, JPEG and PNG types allowed.'));
+							cb(
+								new BadRequestError(
+									'Invalid file type only JPG, JPEG and PNG types allowed.',
+								),
+							);
 						}
 					},
 				});
@@ -32,9 +36,13 @@ export class MediaUploadUtil {
 						file: Express.Multer.File,
 						cb: FileFilterCallback,
 					) => {
-						const allowed_mime_type = 'image/png';
-						if (allowed_mime_type !== file.mimetype) {
-							cb(new BadRequestError('Invalid image type only PNG type allowed.'));
+						const allowed_mime_types = ['image/jpg', 'image/png', 'image/jpeg'];
+						if (!allowed_mime_types.includes(file.mimetype)) {
+							cb(
+								new BadRequestError(
+									'Invalid file type only JPG, JPEG and PNG types allowed.',
+								),
+							);
 						}
 					},
 				});
