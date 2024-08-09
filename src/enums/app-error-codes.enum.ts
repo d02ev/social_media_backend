@@ -9,4 +9,5 @@ export enum AppErrorCodes {
 	SB_UPDATE_ERROR = 'AE1006',
 	SB_DELETE_ERROR = 'AE1007',
 	KNOWN_ORM_ERROR = 'AE1008',
+	EMAIL_SEND_ERROR = 'AE1009',
 }

@@ -22,4 +22,10 @@ export class PasswordDetailRepository {
       where: { userId }
     });
   };
+
+  fetchPasswordDetailsByVerificationHash = async (verificationHash: string): Promise<PasswordDetail | null | undefined> => {
+    return await this._db_service.passwordDetail.findUnique({
+      where: { verificationHash }
+    });
+  };
 }

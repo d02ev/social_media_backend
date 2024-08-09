@@ -87,6 +87,19 @@ export class AuthController {
 		}
 	};
 
+	verify = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const verification_token = req.query['t'];
+			const verify_user_response_dto = await this._auth_service.verifyUser(
+				verification_token as string,
+			);
+
+			return res.status(HttpStatusCodes.OK).json(verify_user_response_dto);
+		} catch (err: any) {
+			return next(err);
+		}
+	};
+
 	refreshAccessToken = async (
 		req: Request,
 		res: Response,

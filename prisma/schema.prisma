@@ -12,9 +12,10 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  fullName String @map("fullname") @db.VarChar(126)
-  userName String @unique @map("username") @db.VarChar(126)
-  email    String @unique @map("email") @db.VarChar(126)
+  fullName String  @map("fullname") @db.VarChar(126)
+  userName String  @unique @map("username") @db.VarChar(126)
+  email    String  @unique @map("email") @db.VarChar(126)
+  verified Boolean @default(false) @map("verified") @db.Boolean
 
   profileImage   ProfileImage?
   passwordDetail PasswordDetail?
@@ -48,12 +49,14 @@ model PasswordDetail {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  passwordHash String @unique @map("password_hash") @db.VarChar()
-  refreshToken String? @unique @map("refresh_token") @db.VarChar()
+  passwordHash     String  @unique @map("password_hash") @db.VarChar()
+  verificationHash String? @unique @map("verification_hash") @db.VarChar()
+  refreshToken     String? @unique @map("refresh_token") @db.VarChar()
 
   user   User   @relation(references: [id], fields: [userId])
   userId String @unique @map("user_id")
 
+  @@index([verificationHash])
   @@map("password_details")
 }
 

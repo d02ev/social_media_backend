@@ -6,6 +6,6 @@ export class RegisterUserResponseDto {
 
   constructor() {
     this.status_code = HttpStatusCodes.CREATED;
-    this.message = 'User registered successfully.';
+    this.message = 'User registered successfully and a verification email has been sent to your email address.';
   }
 }

@@ -8,12 +8,13 @@ import {
 	RefreshAccessTokenResponseDto,
 	RegisterUserRequestDto,
 	RegisterUserResponseDto,
+	UserVerificationResponseDto,
 	ValidatedUserResultDto,
 } from '../dtos';
 import { AppErrorCodes } from '../enums';
 import { AppError, BadRequestError, NotFoundError } from '../errors';
 import { PasswordDetailRepository, UserRepository } from '../repository';
-import { AuthUtil, SupabaseUtil } from '../utils';
+import { AuthUtil, MailUtil, SupabaseUtil } from '../utils';
 import { JwtPayload } from 'jsonwebtoken';
 import { Helper } from '../helpers';
 
@@ -22,6 +23,7 @@ export class AuthService {
 	private readonly _password_detail_repository: PasswordDetailRepository;
 	private readonly _auth_util: AuthUtil;
 	private readonly _supabase_util: SupabaseUtil;
+	private readonly _mail_util: MailUtil;
 	private readonly _helper: Helper;
 
 	constructor() {
@@ -29,6 +31,7 @@ export class AuthService {
 		this._password_detail_repository = new PasswordDetailRepository();
 		this._auth_util = new AuthUtil();
 		this._supabase_util = new SupabaseUtil();
+		this._mail_util = new MailUtil();
 		this._helper = new Helper();
 	}
 
@@ -39,11 +42,14 @@ export class AuthService {
 			const { full_name, user_name, email, password, profile_img_attached } =
 				registerUserRequestDto;
 			const pass_hash = await this._auth_util.createPassHash(password);
+			const verification_hash = this._auth_util.genVerificationToken();
 
 			if (profile_img_attached) {
 				const { profile_img_name, profile_img_buffer, profile_img_mime_type } =
 					registerUserRequestDto;
-				const custom_profile_img_name = this._helper.genCustomFileName(profile_img_name!);
+				const custom_profile_img_name = this._helper.genCustomFileName(
+					profile_img_name!,
+				);
 				const { error } = await this._supabase_util.uploadNewMedia(
 					'profileImage',
 					custom_profile_img_name,
@@ -68,6 +74,7 @@ export class AuthService {
 					user_name,
 					email,
 					pass_hash,
+					verification_hash,
 					profile_img_url,
 					profile_img_name,
 				);
@@ -77,8 +84,13 @@ export class AuthService {
 					user_name,
 					email,
 					pass_hash,
+					verification_hash,
 				);
 			}
+
+			const verification_url =
+				this._helper.genVerificationLink(verification_hash);
+			await this._mail_util.sendVerificationMail(email, verification_url);
 
 			return new RegisterUserResponseDto();
 		} catch (err: any) {
@@ -152,6 +164,50 @@ export class AuthService {
 					err.stack,
 				);
 			}
+			throw new AppError(
+				err.message,
+				AppErrorCodes.UNKNOWN_APP_ERROR,
+				err.stack,
+			);
+		}
+	};
+
+	verifyUser = async (verificationHash: string) => {
+		try {
+			if (!this._auth_util.decodeToken(verificationHash)) {
+				throw new BadRequestError('Invalid URL.');
+			}
+			const password_details =
+				await this._password_detail_repository.fetchPasswordDetailsByVerificationHash(
+					verificationHash,
+				);
+			if (!password_details) {
+				throw new NotFoundError('User does not exist.');
+			}
+
+			const user_id = password_details.userId;
+			await this._user_repository.updateUserVerificationStatus(user_id);
+
+			return new UserVerificationResponseDto();
+		} catch (err: any) {
+			if (err instanceof BadRequestError || err instanceof NotFoundError) {
+				throw err;
+			}
+			if (err instanceof PrismaClientKnownRequestError) {
+				throw new AppError(
+					err.message,
+					AppErrorCodes.KNOWN_ORM_ERROR,
+					err.stack,
+				);
+			}
+			if (err instanceof PrismaClientUnknownRequestError) {
+				throw new AppError(
+					err.message,
+					AppErrorCodes.UNKNOWN_ORM_ERROR,
+					err.stack,
+				);
+			}
+
 			throw new AppError(
 				err.message,
 				AppErrorCodes.UNKNOWN_APP_ERROR,

@@ -13,6 +13,7 @@ export class UserRepository {
 		userName: string,
 		email: string,
 		passwordHash: string,
+		verificationHash: string,
 		imgUrl?: string,
 		imgName?: string,
 	): Promise<User | null | undefined> => {
@@ -23,7 +24,7 @@ export class UserRepository {
 				email,
 				passwordDetail: {
 					connectOrCreate: {
-						create: { passwordHash },
+						create: { passwordHash, verificationHash },
 						where: { passwordHash },
 					},
 				},
@@ -127,6 +128,15 @@ export class UserRepository {
 				followers: true,
 				following: true,
 			},
+		});
+	};
+
+	updateUserVerificationStatus = async (
+		userId: string,
+	): Promise<User | null | undefined> => {
+		return await this._db_service.user.update({
+			where: { id: userId },
+			data: { verified: true },
 		});
 	};
 }
